@@ -31,6 +31,7 @@ setup(
         'Shapely>=1.7.0'
         'tqdm>=4.51.0',
         'pandas>=1.1.4',
+        'matplotlib>=3.1.1',
       ],
       zip_safe=True,
 )
