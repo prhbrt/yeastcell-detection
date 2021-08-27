@@ -72,7 +72,7 @@ def get_unjoined_matches(ground_truth, detections, masks):
   """Match detections with ground truths via the ground truth coordinates and
   only return those detections as true positives, where only one detection
   matches a ground truth."""
-  matches = evaluation.match_detections_and_ground_truths(ground_truth, detections, masks)
+  matches = match_detections_and_ground_truths(ground_truth, detections, masks)
 
   # We defined true positives to be those ground truths that are picked up as
   # a detection, but only if this detection has only one ground truths
