@@ -103,7 +103,7 @@ def get_segmention_metrics(ground_truth, detections, masks):
     'tp': tp,
     'fp': len(set(detections.index) - set(unjoined_matches['detection index'])) + split,
     'fn': len(set(ground_truth.index) - set(unjoined_matches['ground truth index'])),
-    'join': len(detection_joining_gt), 'split': split,
+    'join': (matches.groupby('detection index').count() > 1).sum(), 'split': split,
   }
   return metrics
 
