@@ -109,8 +109,9 @@ def get_segmention_metrics(ground_truth, ground_truth_masks, detections, masks):
 
 
 def get_segmentation_instance_iou(ground_truth, ground_truth_masks, detections, masks):
-  """ Return the average IOU of every detection that is a true positive,
-  as per `get_segmentation_metrics`"""
+  """ Return the average IOU of every detection that is a true positive, as per
+  `get_segmentation_metrics`. Note that since only true positives are considered,
+  a poor model with low recall could a high instance IoU."""
   unjoined_matches = get_unjoined_matches(ground_truth, detections, masks)
 
   gt_index, det_index = unjoined_matches[['ground truth index', 'detection index']].values.T
