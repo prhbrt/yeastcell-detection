@@ -83,7 +83,8 @@ def get_unjoined_matches(ground_truth, detections, masks):
   detection_joining_gt = matches.groupby('detection index').count() > 1
   detection_joining_gt = detection_joining_gt.index[detection_joining_gt['ground truth index']]
   unjoined_matches = matches[~matches['detection index'].isin(detection_joining_gt)]
-  return unjoined_matches
+  joins_found = len(detection_joining_gt)
+  return unjoined_matches, joins_found
 
 
 def get_segmention_metrics(ground_truth, detections, masks):
@@ -92,7 +93,7 @@ def get_segmention_metrics(ground_truth, detections, masks):
   the same mask (merged).
   
   Arguments the same as `match_detections_and_ground_truths`"""
-  unjoined_matches = get_unjoined_matches(ground_truth, detections, masks)
+  unjoined_matches, joins_found = get_unjoined_matches(ground_truth, detections, masks)
   # then the amount of true positives, equals the amount of ground truths that
   # still have a detection assigned.
   tp = len(unjoined_matches['ground truth index'].unique())
@@ -103,7 +104,7 @@ def get_segmention_metrics(ground_truth, detections, masks):
     'tp': tp,
     'fp': len(set(detections.index) - set(unjoined_matches['detection index'])) + split,
     'fn': len(set(ground_truth.index) - set(unjoined_matches['ground truth index'])),
-    'join': (matches.groupby('detection index').count() > 1).sum(), 'split': split,
+    'join': joins_found, 'split': split,
   }
   return metrics
 
@@ -112,7 +113,7 @@ def get_segmentation_instance_iou(ground_truth, ground_truth_masks, detections, 
   """ Return the average IOU of every detection that is a true positive, as per
   `get_segmentation_metrics`. Note that since only true positives are considered,
   a poor model with low recall could a high instance IoU."""
-  unjoined_matches = get_unjoined_matches(ground_truth, detections, masks)
+  unjoined_matches, _ = get_unjoined_matches(ground_truth, detections, masks)
 
   gt_index, det_index = unjoined_matches[['ground truth index', 'detection index']].values.T
   gt_masks = ground_truth_masks[ground_truth.loc[gt_index]['mask']]
