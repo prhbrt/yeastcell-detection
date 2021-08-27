@@ -86,7 +86,7 @@ def get_unjoined_matches(ground_truth, detections, masks):
   return unjoined_matches
 
 
-def get_segmention_metrics(ground_truth, ground_truth_masks, detections, masks):
+def get_segmention_metrics(ground_truth, detections, masks):
   """For the segmentation task, returns how many true positives and true/false
   positives as a dictionary including how many ground truths were detected by
   the same mask (merged).
