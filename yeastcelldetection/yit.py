@@ -48,3 +48,32 @@ def get_test_movie(path, testset_name = 'TestSet1'):
   image = (255 * image / image.max()).astype(np.uint8)
   # image.shape # == (frames, length, width, channels)
   return image
+
+
+def load_yit_segmentation_masks(path, ground_truth=None):
+  masks = np.concatenate([np.load(f'{path}/{fn}')[None] for fn in sorted(os.listdir(path))])
+  if ground_truth is None:
+    frames = sum(([frame] * mask.max() for frame, mask in enumerate(masks)), [])
+    masks = np.concatenate([
+      np.arange(1, mask.max()+1)[:, None, None] == mask[None]
+      for mask in tqdm(masks)
+      if mask.max() > 0
+    ])
+    return pd.DataFrame({'frame': frames, 'mask': np.arange(len(masks))}), masks
+  else:
+    frame, y, x = ground_truth[['frame', 'y', 'x']].round().values.astype(int).T
+    mask_number = masks[frame, y, x]
+    mask_number[mask_number==0] = -1 #
+    
+    # Checks if the masks aren't re-used or ignored.
+    mask_use_count = Counter(zip(frame, mask_number))
+    reused_masks = [(frame, number) for (frame, number), count in mask_use_count.items() if count > 1 and number >= 0]
+    assert len(reused_masks), f"Some annotation masks overlap with more than one ground_truth sample coordinates at mask frames and with numbers: {reused_masks}"
+    ignored_masks = [(frame, mask) for frame, mask in enumerate(masks) for number in range(1, mask.max()+1) if mask_use_count[frame, number] == 0]
+    assert len(ignored_masks) == 0, f"Some annotation masks are not covered by any of the ground_truth sample coordinates at mask frames and with numbers: {ignored_masks}"
+    # ground_truth samples without a mask are allowed and actually common (10%) in the annotations of YeastNet's authors, these are typically small cells.
+    
+    masks = masks[frame] == mask_number[:, None, None]
+    
+    ground_truth['mask'] = np.arange(len(masks))
+    return masks, ground_truth
