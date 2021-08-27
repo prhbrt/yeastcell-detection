@@ -78,4 +78,4 @@ def load_yit_segmentation_masks(path, ground_truth=None):
     masks = masks[frame] == mask_number[:, None, None]
     
     ground_truth['mask'] = np.arange(len(masks))
-    return masks, ground_truth
+    return ground_truth, masks
