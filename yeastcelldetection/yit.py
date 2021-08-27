@@ -4,6 +4,7 @@ from . import data
 import numpy as np
 import pandas as pd
 from skimage.io import imread
+from collections import Counter
 
 
 def get_ground_truth(path, testset_name = 'TestSet1'):
